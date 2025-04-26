@@ -64,7 +64,7 @@ def navegador(res, on_change):
             spacing=10
         ),
         width=180, 
-        height=100,
+        height=120,
         padding=10,
         margin=0,
         border_radius=0,
