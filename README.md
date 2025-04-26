@@ -37,5 +37,7 @@ uv run flet run
 ```
 
 Esto instalará las dependencias y abrirá la aplicación gráfica en una ventana donde se pueden observar las soluciones del problema.
+
+
 ![Ejemplo de ejecución](ejemplo.png)
 
