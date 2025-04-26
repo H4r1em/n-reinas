@@ -1,0 +1,13 @@
+cabal-version:       >=1.10
+name:                servidor
+version:             0.1.0.0
+build-type:          Simple
+
+executable servidor
+  main-is:             servidor.hs
+  hs-source-dirs:      .
+  default-language:    Haskell2010
+  build-depends:       base >=4.14 && <5,
+                       network,
+                       text,
+                       bytestring
