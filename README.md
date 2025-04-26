@@ -36,5 +36,5 @@ En otra terminal, desde la raíz del proyecto:
 uv run flet run
 ```
 
-Esto abrirá la aplicación gráfica en una ventana donde se pueden observar las soluciones dado un número n y cambiar entre estas.
+Esto instalará las dependencias y abrirá la aplicación gráfica en una ventana donde se pueden observar las soluciones del problema.
 
