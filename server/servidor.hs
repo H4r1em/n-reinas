@@ -8,6 +8,7 @@ import qualified Data.ByteString as S
 import qualified Data.List.NonEmpty as NE
 import Network.Socket
 import Network.Socket.ByteString (recv, sendAll)
+import qualified Data.ByteString.Char8 as BC
 
 import System.Environment
 import qualified Data.List as L
@@ -21,7 +22,7 @@ main = runTCPServer Nothing "3000" talk
     talk s = do
         msg <- recv s 1024
         unless (S.null msg) $ do
-          sendAll s (doP msg)
+          sendAll s (doP msg <> BC.pack "\n")
           talk s
 
 -- from the "network-run" package.
@@ -48,9 +49,9 @@ runTCPServer mhost port server = withSocketsDo $ do
 
 doP bst = deCad (doL (aCad bst))
 
+doL :: String -> String
 doL [] = []
-doL lin = hazL (L.takeWhile (/= '\n') lin) 
-          ++ doL (L.tail (L.dropWhile (/= '\n') lin))
+doL lin = hazL (takeWhile (/= '\n') lin) ++ doL (drop 1 (dropWhile (/= '\n') lin))
 
 hazL l = menu l
 

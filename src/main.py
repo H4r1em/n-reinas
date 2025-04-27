@@ -2,7 +2,8 @@ import flet as ft
 import tablero as tb
 from input_user import input_user
 from navegador import navegador
-from solver import resolver_n_reinas
+#from solver import resolver_n_reinas
+from solver_remoto import resolver_n_reinas
 
 def main(page: ft.Page):
     page.title = "N-Reinas Solver"
