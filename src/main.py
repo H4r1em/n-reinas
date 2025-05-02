@@ -1,86 +1,67 @@
+# main.py
 import flet as ft
 import tablero as tb
 from input_user import input_user
 from navegador import navegador
-#from solver import resolver_n_reinas
 from solver_remoto import resolver_n_reinas
 
 def main(page: ft.Page):
-    page.title = "N-Reinas Solver"
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.title = "N-Reinas Solver (Socket Síncrono)"
+    page.window.center()
     page.window.width = 1100
     page.window.height = 750
-    page.window.center()
 
-    tablero_ref = ft.Ref[ft.Container]()
-    n_ref = ft.Ref[ft.TextField]()
+    tablero_ref   = ft.Ref[ft.Container]()
     navegador_ref = ft.Ref[ft.Container]()
-    #soluciones = []
-    n_inicial = 4
+    n_ref         = ft.Ref[ft.TextField]()
 
-    def actualizar_soluciones(n_value):
-        #nonlocal soluciones
-        if n_value >= 4:
-            ### DIEGO: las soluciones deben venir del método resolver_n_reinas
+    def actualizar_tablero(posiciones: list[int]):
+        widget = tb.tablero(n=len(posiciones), ubicaciones=posiciones)
+        tablero_ref.current.content = widget
+        tablero_ref.current.update()
+
+    def actualizar_soluciones(n_value: int):
+        try:
             soluciones = resolver_n_reinas(n_value)
-            ######
-            if soluciones:
-                actualizar_tablero(soluciones[0])
-                navegador_ref.current.content = navegador(soluciones, actualizar_tablero)
-                navegador_ref.current.update()
-            else:
-                actualizar_tablero([])
-                navegador_ref.current.content = navegador([], actualizar_tablero)
-                navegador_ref.current.update()
+        except RuntimeError as err:
+            page.snack_bar = ft.SnackBar(ft.Text(str(err)))
+            page.snack_bar.open = True
+            page.update()
+            return
+
+        if soluciones:
+            actualizar_tablero(soluciones[0])
+            navegador_ref.current.content = navegador(soluciones, actualizar_tablero)
         else:
             actualizar_tablero([])
             navegador_ref.current.content = navegador([], actualizar_tablero)
-            navegador_ref.current.update()
-
-    def actualizar_tablero(posiciones):
-        if tablero_ref.current is not None:
-            n_actual = int(n_ref.current.value) if n_ref.current.value.isdigit() else n_inicial
-            tablero_ref.current.content = tb.tablero(n=n_actual, ubicaciones=posiciones)
-            tablero_ref.current.update()
+        navegador_ref.current.update()
 
     def on_submit_n(e):
-        if n_ref.current.value.isdigit():
-            n_value = int(n_ref.current.value)
-            actualizar_soluciones(n_value)
+        val = n_ref.current.value
+        if val.isdigit() and int(val) >= 4:
+            actualizar_soluciones(int(val))
         else:
-            actualizar_tablero([])
-            navegador_ref.current.content = navegador([], actualizar_tablero)
-            navegador_ref.current.update()
+            page.snack_bar = ft.SnackBar(ft.Text("Introduce un entero válido ≥ 4"))
+            page.snack_bar.open = True
+            page.update()
 
     input_n = input_user(n_ref, on_submit_n)
 
-    app_tab = ft.Row(
+    layout = ft.Row(
         controls=[
-            ft.Column(
-                controls=[
-                    ft.Container(ref=tablero_ref, content=tb.tablero(n=n_inicial, ubicaciones=[])),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            ft.Column(
-                controls=[
-                    input_n,
-                    ft.Container(ref=navegador_ref, content=navegador([], actualizar_tablero)),
-                ],
-                alignment=ft.MainAxisAlignment.START,
-            ),
+            ft.Column([ ft.Container(ref=tablero_ref, content=tb.tablero(0, [])) ]),
+            ft.Column([
+                input_n,
+                ft.Container(ref=navegador_ref,
+                             content=navegador([], actualizar_tablero))
+            ])
         ],
-        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+        alignment=ft.MainAxisAlignment.SPACE_EVENLY
     )
 
-    page.add(app_tab)
+    page.add(layout)
+    page.on_load = lambda e: actualizar_tablero([])
 
-    def on_page_load(e):
-        actualizar_tablero([])
-        navegador_ref.current.content = navegador([], actualizar_tablero)
-        navegador_ref.current.update()
-
-    page.on_load = on_page_load
-
-ft.app(main)
+if __name__ == "__main__":
+    ft.app(target=main, view=ft.FLET_APP)
