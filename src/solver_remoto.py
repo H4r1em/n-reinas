@@ -9,7 +9,7 @@ def resolver_n_reinas(n: int) -> list[list[int]]:
     try:
         raw = query(str(n))
     except ConnectionRefusedError:
-        raise RuntimeError("No puedo conectar con el servidor Haskell en 127.0.0.1:3000")
+        raise RuntimeError("No es posible conectar con el servidor 127.0.0.1:3000")
     except Exception as e:
         raise RuntimeError(f"Error de red: {e}")
 
