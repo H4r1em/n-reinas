@@ -3,6 +3,7 @@ import tablero as tb
 from input_user import input_user
 from navegador import navegador
 from solver_remoto import resolver_n_reinas
+from error_msg import error_msg
 
 def main(page: ft.Page):
     page.title = "N-Reinas Solver"
@@ -15,22 +16,23 @@ def main(page: ft.Page):
     tablero_ref = ft.Ref[ft.Container]()
     n_ref = ft.Ref[ft.TextField]()
     navegador_ref = ft.Ref[ft.Container]()
-    #soluciones = []
     n_inicial = 4
 
     def actualizar_soluciones(n_value):
-        #nonlocal soluciones
         if n_value >= 4:
-            ### DIEGO: las soluciones deben venir del método resolver_n_reinas
-            soluciones = resolver_n_reinas(n_value)
-            ######
-            if soluciones:
-                actualizar_tablero(soluciones[0])
-                navegador_ref.current.content = navegador(soluciones, actualizar_tablero)
-                navegador_ref.current.update()
-            else:
+            try:
+                soluciones = resolver_n_reinas(n_value)
+                if soluciones:
+                    actualizar_tablero(soluciones[0])
+                    navegador_ref.current.content = navegador(soluciones, actualizar_tablero)
+                    navegador_ref.current.update()
+                else:
+                    actualizar_tablero([])
+                    navegador_ref.current.content = navegador([], actualizar_tablero)
+                    navegador_ref.current.update()
+            except RuntimeError as e:
                 actualizar_tablero([])
-                navegador_ref.current.content = navegador([], actualizar_tablero)
+                navegador_ref.current.content = error_msg(str(e))
                 navegador_ref.current.update()
         else:
             actualizar_tablero([])
@@ -54,26 +56,33 @@ def main(page: ft.Page):
 
     input_n = input_user(n_ref, on_submit_n)
 
-    app_tab = ft.Row(
-        controls=[
-            ft.Column(
-                controls=[
-                    ft.Container(ref=tablero_ref, content=tb.tablero(n=n_inicial, ubicaciones=[])),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            ft.Column(
-                controls=[
-                    input_n,
-                    ft.Container(ref=navegador_ref, content=navegador([], actualizar_tablero)),
-                ],
-                alignment=ft.MainAxisAlignment.START,
-            ),
-        ],
-        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+    contenido_central = ft.Container(
+        content=ft.Row(
+            controls=[
+                ft.Column(
+                    controls=[
+                        ft.Container(ref=tablero_ref, content=tb.tablero(n=n_inicial, ubicaciones=[])),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
+                ft.Column(
+                    controls=[
+                        input_n,
+                        ft.Container(ref=navegador_ref, content=navegador([], actualizar_tablero)),
+                    ],
+                    alignment=ft.MainAxisAlignment.START,
+                ),
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+        ),
+        alignment=ft.alignment.center,
     )
 
-    page.add(app_tab)
+    page.add(
+        ft.SafeArea(
+            contenido_central,
+        )
+    )
 
     def on_page_load(e):
         actualizar_tablero([])
@@ -82,4 +91,5 @@ def main(page: ft.Page):
 
     page.on_load = on_page_load
 
-ft.app(main)
+if __name__ == "__main__":
+    ft.app(target=main, view=ft.FLET_APP)

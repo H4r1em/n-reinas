@@ -1,4 +1,3 @@
-# solver_remoto.py
 import json
 from cliente import query
 
