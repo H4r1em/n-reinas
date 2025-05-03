@@ -38,7 +38,7 @@ uv run flet run
 
 Esto instalará las dependencias y abrirá la aplicación gráfica en una ventana donde se pueden observar las soluciones del problema.
 
-> [!note] 
+> [!note]
 > Es importante que primero se ejecute el servidor de Haskell y posteriormente la aplicación de Flet.
 
 ![Ejemplo de ejecución](ejemplo.png)
